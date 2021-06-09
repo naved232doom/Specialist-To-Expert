@@ -117,71 +117,69 @@ void _print(map<T, V> v)
     }
     cerr << "]";
 }
-const int N = 1e5 + 5;
-ll dp[N];
+vector<string> ls;
+void generateStrings()
+{
+    for(int i=0;i<26;++i){
+        string here1 = "a";
+        here1[0] = (here1[0] + i);
+        ls.push_back(here1);
+    }
+    for(int i=0;i<26;++i){
+        string here1 = "a";
+        here1[0] = (here1[0] + i);
+        for(int j=0;j<26;++j){
+
+            string here2 = "a";
+            here2[0] = (here2[0] + j);
+            ls.push_back(here1+here2);
+        }
+    }
+    for (int i = 0; i < 26; ++i)
+    {
+        string here1 = "a";
+        here1[0] = (here1[0] + i) ;
+        for (int j = 0; j < 26; ++j)
+        {
+            string here2 = "a";
+            here2[0] = (here2[0] + j);
+            for (int k = 0; k < 26; ++k)
+            {
+                string here3 = "a";
+                here3[0] = (here3[0] + k);
+                string now= here1+here2+here3;
+                //debug(now);
+                ls.push_back(now);
+            }
+        }
+    }
+}
 void solve()
 {
     int n;
     cin >> n;
-    vector<ll> arr(n);
-    rep(i, n) cin >> arr[i];
-    // main thing to notice here is the fact that
-    //  we can always remove the tower in arr[i] times
-    // so dp[i]=min(dp[i],arr[i]) from left and right
-    init(dp, mod);
-    dp[0] = 1ll;
-    dp[n - 1] = 1ll;
-    for (int i = 0; i < n; ++i)
-    {
-        if (arr[i] == 1)
-        {
-            dp[i] = 1;
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i - 1 >= 0)
-                dp[i] = min(dp[i - 1] + 1, dp[i]);
+    string s;
+    cin>>s;
+    for(auto v:ls){
+        auto p=s.find(v);
+        
+        if(p>=n){
+            cout<<v<<'\n';
+            return;
         }
     }
-    for (int i = n - 1; i >= 0; --i)
-    {
-        if (arr[i] == 1)
-        {
-            dp[i] = min(dp[i], 1ll);
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i + 1 < n)
-                dp[i] = min(dp[i], dp[i + 1] + 1);
-        }
-    }
-    int64_t ans = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        debug(dp[i]);
-        ans = max(ans, dp[i]);
-    }
-
-    cout << ans << '\n';
-}
-
-ll gcd(ll a,ll b) {
-    if(b == 0) {
-        return a;
-    }
-    return gcd(b, a % b);
 }
 int main()
 {
-#ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("Error.txt", "w", stderr);
-    freopen("output.txt", "w", stdout);
-#endif
+    fastio();
+    generateStrings();
+// #ifndef ONLINE_JUDGE
+//     freopen("input.txt", "r", stdin);
+//     freopen("Error.txt", "w", stderr);
+//     freopen("output.txt", "w", stdout);
+// #endif
     int t = 1;
-    //cin >> t;
+    cin >> t;
     while (t--)
     {
         solve();

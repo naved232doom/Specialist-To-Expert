@@ -117,71 +117,35 @@ void _print(map<T, V> v)
     }
     cerr << "]";
 }
-const int N = 1e5 + 5;
-ll dp[N];
+
 void solve()
 {
-    int n;
-    cin >> n;
-    vector<ll> arr(n);
-    rep(i, n) cin >> arr[i];
-    // main thing to notice here is the fact that
-    //  we can always remove the tower in arr[i] times
-    // so dp[i]=min(dp[i],arr[i]) from left and right
-    init(dp, mod);
-    dp[0] = 1ll;
-    dp[n - 1] = 1ll;
-    for (int i = 0; i < n; ++i)
+    string s;
+    cin >> s;
+    int cnt = 0;
+    map<string, int> idx;
+    for (int i = 0; i < 10; ++i)
     {
-        if (arr[i] == 1)
-        {
-            dp[i] = 1;
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i - 1 >= 0)
-                dp[i] = min(dp[i - 1] + 1, dp[i]);
-        }
+        string cur;
+        cin >> cur;
+        idx[cur] = cnt++;
     }
-    for (int i = n - 1; i >= 0; --i)
+    for (int i = 0; i < sz(s); i += 10)
     {
-        if (arr[i] == 1)
-        {
-            dp[i] = min(dp[i], 1ll);
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i + 1 < n)
-                dp[i] = min(dp[i], dp[i + 1] + 1);
-        }
+        string c = s.substr(i, 10);
+        cout << idx[c];
     }
-    int64_t ans = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        debug(dp[i]);
-        ans = max(ans, dp[i]);
-    }
-
-    cout << ans << '\n';
-}
-
-ll gcd(ll a,ll b) {
-    if(b == 0) {
-        return a;
-    }
-    return gcd(b, a % b);
+    cout << '\n';
 }
 int main()
 {
-#ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("Error.txt", "w", stderr);
-    freopen("output.txt", "w", stdout);
-#endif
+    // #ifndef ONLINE_JUDGE
+    //     freopen("input.txt", "r", stdin);
+    //     freopen("Error.txt", "w", stderr);
+    //     freopen("output.txt", "w", stdout);
+    // #endif
     int t = 1;
-    //cin >> t;
+    // cin >> t;
     while (t--)
     {
         solve();

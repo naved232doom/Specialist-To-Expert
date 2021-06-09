@@ -117,71 +117,132 @@ void _print(map<T, V> v)
     }
     cerr << "]";
 }
-const int N = 1e5 + 5;
-ll dp[N];
-void solve()
-{
-    int n;
-    cin >> n;
-    vector<ll> arr(n);
-    rep(i, n) cin >> arr[i];
-    // main thing to notice here is the fact that
-    //  we can always remove the tower in arr[i] times
-    // so dp[i]=min(dp[i],arr[i]) from left and right
-    init(dp, mod);
-    dp[0] = 1ll;
-    dp[n - 1] = 1ll;
-    for (int i = 0; i < n; ++i)
-    {
-        if (arr[i] == 1)
-        {
-            dp[i] = 1;
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i - 1 >= 0)
-                dp[i] = min(dp[i - 1] + 1, dp[i]);
-        }
-    }
-    for (int i = n - 1; i >= 0; --i)
-    {
-        if (arr[i] == 1)
-        {
-            dp[i] = min(dp[i], 1ll);
-        }
-        else
-        {
-            dp[i] = min(dp[i], arr[i]);
-            if (i + 1 < n)
-                dp[i] = min(dp[i], dp[i + 1] + 1);
-        }
-    }
-    int64_t ans = 0;
-    for (int i = 0; i < n; ++i)
-    {
-        debug(dp[i]);
-        ans = max(ans, dp[i]);
-    }
+vector<int> smallest_factor;
+vector<bool> prime;
+vector<int> primes;
 
-    cout << ans << '\n';
+void sieve(int maximum)
+{
+    maximum = max(maximum, 1);
+    smallest_factor.assign(maximum + 1, 0);
+    prime.assign(maximum + 1, true);
+    prime[0] = prime[1] = false;
+    primes = {};
+
+    for (int p = 2; p <= maximum; p++)
+        if (prime[p])
+        {
+            smallest_factor[p] = p;
+            primes.push_back(p);
+
+            for (int64_t i = int64_t(p) * p; i <= maximum; i += p)
+                if (prime[i])
+                {
+                    prime[i] = false;
+                    smallest_factor[i] = p;
+                }
+        }
 }
 
-ll gcd(ll a,ll b) {
-    if(b == 0) {
-        return a;
+// Prime factorizes n in worst case O(sqrt n / log n). Requires having run `sieve` up to at least sqrt(n).
+// If we've run `sieve` up to at least n, takes O(log n) time.
+vector<pair<int64_t, int>> prime_factorize(int64_t n)
+{
+    int64_t sieve_max = int64_t(smallest_factor.size()) - 1;
+    assert(1 <= n && n <= sieve_max * sieve_max);
+    vector<pair<int64_t, int>> result;
+
+    if (n <= sieve_max)
+    {
+        while (n != 1)
+        {
+            int64_t p = smallest_factor[n];
+            int exponent = 0;
+
+            do
+            {
+                n /= p;
+                exponent++;
+            } while (n % p == 0);
+
+            result.emplace_back(p, exponent);
+        }
+
+        return result;
     }
-    return gcd(b, a % b);
+
+    for (int64_t p : primes)
+    {
+        if (p * p > n)
+            break;
+
+        if (n % p == 0)
+        {
+            result.emplace_back(p, 0);
+
+            do
+            {
+                n /= p;
+                result.back().second++;
+            } while (n % p == 0);
+        }
+    }
+
+    if (n > 1)
+        result.emplace_back(n, 1);
+
+    return result;
+}
+
+// int canonicalize(int a) {
+//     vector<pair<int64_t, int>> prime_factors = prime_factorize(a);
+//     int product = 1;
+
+//     for (auto &pf : prime_factors)
+//         if (pf.second % 2 != 0)
+//             product *= int(pf.first);
+
+//     return product;
+// }
+const int N = 5e6 + 5;
+vector<ll> pref(N);
+vector<ll> cnts(N);
+void presolve()
+{
+    sieve(N);
+    for (int i = 2; i < N; ++i)
+    {
+        auto p = prime_factorize(i);
+        for (auto k : p)
+        {
+            cnts[i] += k.ss;
+        }
+    }
+
+    for (int i = 2; i < N; ++i)
+    {
+        pref[i] = pref[i - 1] + cnts[i];
+    }
+}
+void solve()
+{
+    ll a, b;
+    cin >> a >> b;
+    // debug(pref[b]);
+    // debug(pref[a]);
+    cout << pref[a] - pref[b] << '\n';
 }
 int main()
 {
-#ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("Error.txt", "w", stderr);
-    freopen("output.txt", "w", stdout);
-#endif
+    // #ifndef ONLINE_JUDGE
+    //     freopen("input.txt", "r", stdin);
+    //     freopen("Error.txt", "w", stderr);
+    //     freopen("output.txt", "w", stdout);
+    // #endif
+    fastio();
+    presolve();
     int t = 1;
-    //cin >> t;
+    cin >> t;
     while (t--)
     {
         solve();
